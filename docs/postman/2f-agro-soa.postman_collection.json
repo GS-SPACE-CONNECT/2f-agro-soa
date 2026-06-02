@@ -1,0 +1,154 @@
+{
+  "info": {
+    "name": "2f-agro-soa",
+    "description": "Coleção de testes do projeto SOA (REST + SOAP + Integração). Suba a app com `mvn spring-boot:run` e use a variável {{baseUrl}} (padrão http://localhost:8080).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "propriedadeId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "REST - Propriedade (CRUD)",
+      "item": [
+        {
+          "name": "GET listar todas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/propriedades", "host": ["{{baseUrl}}"], "path": ["api", "propriedades"] }
+          }
+        },
+        {
+          "name": "GET por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/propriedades/{{propriedadeId}}", "host": ["{{baseUrl}}"], "path": ["api", "propriedades", "{{propriedadeId}}"] }
+          }
+        },
+        {
+          "name": "POST criar (201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtor\": \"João Silva\",\n  \"cultura\": \"Soja\",\n  \"latitude\": -21.1767,\n  \"longitude\": -47.8208,\n  \"areaHa\": 120.5,\n  \"municipio\": \"Ribeirão Preto\",\n  \"uf\": \"SP\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/propriedades", "host": ["{{baseUrl}}"], "path": ["api", "propriedades"] }
+          }
+        },
+        {
+          "name": "PUT atualizar (200)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtor\": \"João Silva\",\n  \"cultura\": \"Milho\",\n  \"latitude\": -21.1767,\n  \"longitude\": -47.8208,\n  \"areaHa\": 200.0,\n  \"municipio\": \"Ribeirão Preto\",\n  \"uf\": \"SP\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/propriedades/{{propriedadeId}}", "host": ["{{baseUrl}}"], "path": ["api", "propriedades", "{{propriedadeId}}"] }
+          }
+        },
+        {
+          "name": "DELETE (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/propriedades/{{propriedadeId}}", "host": ["{{baseUrl}}"], "path": ["api", "propriedades", "{{propriedadeId}}"] }
+          }
+        },
+        {
+          "name": "POST inválido (400 - validação)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtor\": \"\",\n  \"cultura\": \"Soja\",\n  \"latitude\": 999,\n  \"longitude\": -46.6,\n  \"areaHa\": -5,\n  \"municipio\": \"X\",\n  \"uf\": \"SAO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/propriedades", "host": ["{{baseUrl}}"], "path": ["api", "propriedades"] }
+          }
+        },
+        {
+          "name": "GET inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/propriedades/99999", "host": ["{{baseUrl}}"], "path": ["api", "propriedades", "99999"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST - Integração (NASA + SOAP)",
+      "item": [
+        {
+          "name": "GET propriedade enriquecida (NASA POWER)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/integracao/propriedades/{{propriedadeId}}/clima", "host": ["{{baseUrl}}"], "path": ["api", "integracao", "propriedades", "{{propriedadeId}}", "clima"] }
+          }
+        },
+        {
+          "name": "POST cadastro integrado (REST -> SOAP -> NASA)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtor\": \"Maria Oliveira\",\n  \"cultura\": \"Milho\",\n  \"latitude\": -16.6869,\n  \"longitude\": -49.2648,\n  \"areaHa\": 340.0,\n  \"municipio\": \"Goiânia\",\n  \"uf\": \"GO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/integracao/propriedades", "host": ["{{baseUrl}}"], "path": ["api", "integracao", "propriedades"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP - Cadastro Rural",
+      "item": [
+        {
+          "name": "WSDL (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/ws/cadastro-rural.wsdl", "host": ["{{baseUrl}}"], "path": ["ws", "cadastro-rural.wsdl"] }
+          }
+        },
+        {
+          "name": "registrarCadastroRural (SOAP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "text/xml; charset=utf-8" },
+              { "key": "SOAPAction", "value": "\"\"" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:cad=\"http://fiap.com.br/agro/soa/cadastro-rural\">\n  <soapenv:Body>\n    <cad:registrarCadastroRuralRequest>\n      <cad:cpf>123.456.789-00</cad:cpf>\n      <cad:car>CAR-SP-001</cad:car>\n      <cad:nomeProdutor>João Silva</cad:nomeProdutor>\n      <cad:municipio>Ribeirão Preto</cad:municipio>\n      <cad:uf>SP</cad:uf>\n      <cad:areaHa>120.5</cad:areaHa>\n    </cad:registrarCadastroRuralRequest>\n  </soapenv:Body>\n</soapenv:Envelope>"
+            },
+            "url": { "raw": "{{baseUrl}}/ws", "host": ["{{baseUrl}}"], "path": ["ws"] }
+          }
+        },
+        {
+          "name": "consultarCadastroRural (SOAP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "text/xml; charset=utf-8" },
+              { "key": "SOAPAction", "value": "\"\"" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:cad=\"http://fiap.com.br/agro/soa/cadastro-rural\">\n  <soapenv:Body>\n    <cad:consultarCadastroRuralRequest>\n      <cad:cpf>123.456.789-00</cad:cpf>\n    </cad:consultarCadastroRuralRequest>\n  </soapenv:Body>\n</soapenv:Envelope>"
+            },
+            "url": { "raw": "{{baseUrl}}/ws", "host": ["{{baseUrl}}"], "path": ["ws"] }
+          }
+        }
+      ]
+    }
+  ]
+}

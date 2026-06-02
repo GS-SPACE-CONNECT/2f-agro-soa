@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Contrato (contract-first) do Web Service SOAP de Cadastro Rural.
+  Simula o sistema legado do governo (EMATER/MAPA/CAR).
+  A partir deste XSD o Spring-WS publica o WSDL e o JAXB gera as classes Java.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://fiap.com.br/agro/soa/cadastro-rural"
+           targetNamespace="http://fiap.com.br/agro/soa/cadastro-rural"
+           elementFormDefault="qualified">
+
+    <!-- Tipo que representa um cadastro rural -->
+    <xs:complexType name="cadastroRuralTipo">
+        <xs:sequence>
+            <xs:element name="cpf" type="xs:string"/>
+            <xs:element name="car" type="xs:string"/>
+            <xs:element name="nomeProdutor" type="xs:string"/>
+            <xs:element name="municipio" type="xs:string"/>
+            <xs:element name="uf" type="xs:string"/>
+            <xs:element name="areaHa" type="xs:double"/>
+            <xs:element name="situacao" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ===== Operação: consultar (por CPF ou CAR) ===== -->
+    <xs:element name="consultarCadastroRuralRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="cpf" type="xs:string" minOccurs="0"/>
+                <xs:element name="car" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="consultarCadastroRuralResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="encontrado" type="xs:boolean"/>
+                <xs:element name="cadastro" type="tns:cadastroRuralTipo" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- ===== Operação: registrar/processar ===== -->
+    <xs:element name="registrarCadastroRuralRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="cpf" type="xs:string"/>
+                <xs:element name="car" type="xs:string"/>
+                <xs:element name="nomeProdutor" type="xs:string"/>
+                <xs:element name="municipio" type="xs:string"/>
+                <xs:element name="uf" type="xs:string"/>
+                <xs:element name="areaHa" type="xs:double"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="registrarCadastroRuralResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="protocolo" type="xs:string"/>
+                <xs:element name="situacao" type="xs:string"/>
+                <xs:element name="mensagem" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

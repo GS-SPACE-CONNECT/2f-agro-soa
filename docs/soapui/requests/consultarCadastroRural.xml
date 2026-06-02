@@ -1,0 +1,10 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:cad="http://fiap.com.br/agro/soa/cadastro-rural">
+  <soapenv:Body>
+    <cad:consultarCadastroRuralRequest>
+      <!-- informe CPF e/ou CAR -->
+      <cad:cpf>123.456.789-00</cad:cpf>
+      <!-- <cad:car>CAR-SP-001</cad:car> -->
+    </cad:consultarCadastroRuralRequest>
+  </soapenv:Body>
+</soapenv:Envelope>

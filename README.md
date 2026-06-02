@@ -80,6 +80,48 @@ mvn spring-boot:run
 # Swagger (bônus) → http://localhost:8080/swagger-ui.html
 ```
 
+### 🗄️ Banco H2 (console)
+
+A persistência usa um banco **H2 em memória** (recriado a cada start) com um seed inicial
+(`src/main/resources/data.sql`) de 4 propriedades de exemplo.
+
+Acesse o console em **http://localhost:8080/h2-console** com:
+
+| Campo | Valor |
+|---|---|
+| **JDBC URL** | `jdbc:h2:mem:agrodb` |
+| **User Name** | `sa` |
+| **Password** | *(em branco)* |
+
+> Use exatamente a JDBC URL acima (igual à de `application.yml`), senão o console abre um
+> banco vazio diferente. A tabela mapeada é `PROPRIEDADE`.
+
+## 🔗 Integração entre serviços (issue #7)
+
+O endpoint de integração orquestra os três serviços de forma **resiliente** (falha de um
+serviço externo não derruba o fluxo — vira aviso no resultado):
+
+```
+POST /api/integracao/propriedades
+   │
+   ├─(1) cria a propriedade ........... REST  → H2 (Spring Data JPA)
+   ├─(2) registra no "governo" ........ SOAP  → WebServiceTemplate (cliente JAXB) → /ws
+   ├─(3) consulta clima do ponto ...... REST  → NASA POWER (RestClient, timeout+fallback)
+   └─(4) deriva alerta agroclimático .. POO   → Alerta.gerarMensagem() (polimorfismo)
+   ▼
+   CadastroIntegradoResponse { propriedade, protocoloGoverno, clima, alerta, avisos[] }
+```
+
+| Endpoint | O que faz |
+|---|---|
+| `GET /api/integracao/propriedades/{id}/clima` | Propriedade **enriquecida** com clima da NASA POWER (fallback se indisponível) |
+| `POST /api/integracao/propriedades` | Fluxo completo: cria (REST) → registra (SOAP) → enriquece (NASA) → alerta |
+
+- **Serviço externo (espacial):** `NasaPowerServicoClimatico` implementa `ServicoClimatico`, consome a API de *climatology* da NASA POWER via `RestClient` (timeouts de 5s/8s).
+- **REST ↔ SOAP interno:** `CadastroRuralClient` (`WebServiceTemplate` + JAXB) chama o próprio Web Service SOAP pela rede.
+- **Resiliência:** falha da NASA → `climaDisponivel=false` + aviso; falha do SOAP → `protocoloGoverno=null` + aviso; a propriedade é criada de qualquer forma.
+- **Config:** `soa.nasa.power-base-url` e `soa.governo.soap-uri` permitem apontar/simular os serviços.
+
 ## 📊 Mapa da rubrica (25% cada)
 
 | Critério | Peso | Onde está |

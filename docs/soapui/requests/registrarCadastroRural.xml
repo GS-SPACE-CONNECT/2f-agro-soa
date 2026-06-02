@@ -1,0 +1,13 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:cad="http://fiap.com.br/agro/soa/cadastro-rural">
+  <soapenv:Body>
+    <cad:registrarCadastroRuralRequest>
+      <cad:cpf>123.456.789-00</cad:cpf>
+      <cad:car>CAR-SP-001</cad:car>
+      <cad:nomeProdutor>João Silva</cad:nomeProdutor>
+      <cad:municipio>Ribeirão Preto</cad:municipio>
+      <cad:uf>SP</cad:uf>
+      <cad:areaHa>120.5</cad:areaHa>
+    </cad:registrarCadastroRuralRequest>
+  </soapenv:Body>
+</soapenv:Envelope>
