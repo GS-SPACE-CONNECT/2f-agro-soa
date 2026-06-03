@@ -4,6 +4,8 @@ import br.com.fiap.agro.soa.dto.CadastroIntegradoResponse;
 import br.com.fiap.agro.soa.dto.PropriedadeEnriquecidaResponse;
 import br.com.fiap.agro.soa.dto.PropriedadeRequest;
 import br.com.fiap.agro.soa.service.IntegracaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Expõe o consumo do serviço externo (NASA POWER) e o fluxo orquestrado REST↔SOAP.</p>
  */
+@Tag(name = "Integração", description = "Orquestração REST ↔ SOAP + dados externos da NASA POWER")
 @RestController
 @RequestMapping("/api/integracao")
 public class IntegracaoController {
@@ -33,6 +36,7 @@ public class IntegracaoController {
      * GET /api/integracao/propriedades/{id}/clima
      * Devolve a propriedade enriquecida com o dado climático da NASA POWER (com fallback).
      */
+    @Operation(summary = "Enriquece uma propriedade com clima da NASA POWER (com fallback)")
     @GetMapping("/propriedades/{id}/clima")
     public PropriedadeEnriquecidaResponse enriquecer(@PathVariable Long id) {
         return integracaoService.enriquecer(id);
@@ -42,6 +46,7 @@ public class IntegracaoController {
      * POST /api/integracao/propriedades
      * Cadastra a propriedade (REST), registra no governo (SOAP) e enriquece com clima (NASA).
      */
+    @Operation(summary = "Fluxo integrado: cria (REST) → registra no governo (SOAP) → enriquece (NASA)")
     @PostMapping("/propriedades")
     public ResponseEntity<CadastroIntegradoResponse> cadastrarIntegrado(
             @Valid @RequestBody PropriedadeRequest req) {
