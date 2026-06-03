@@ -1,7 +1,7 @@
 # 🟧 2f-agro-soa
 
 > Serviços distribuídos em **Java + Spring Boot** do 2F-AGRO.
-> Matéria: **SOA — Service-Oriented Architecture** · FIAP 3ES · GS 2026.1
+> Matéria: **SOA — Service-Oriented Architecture** · FIAP 3ESPZ · GS 2026.1
 
 [![Hub](https://img.shields.io/badge/hub-2f--agro-success)](https://github.com/GS-SPACE-CONNECT/2f-agro)
 [![Java](https://img.shields.io/badge/Java-17-orange)](https://adoptium.net/)
@@ -77,7 +77,6 @@ mvn spring-boot:run
 # REST            → http://localhost:8080/api/propriedades
 # SOAP WSDL       → http://localhost:8080/ws/cadastro-rural.wsdl
 # H2 console      → http://localhost:8080/h2-console
-# Swagger (bônus) → http://localhost:8080/swagger-ui.html
 ```
 
 ### 🗄️ Banco H2 (console)
@@ -121,6 +120,15 @@ POST /api/integracao/propriedades
 - **REST ↔ SOAP interno:** `CadastroRuralClient` (`WebServiceTemplate` + JAXB) chama o próprio Web Service SOAP pela rede.
 - **Resiliência:** falha da NASA → `climaDisponivel=false` + aviso; falha do SOAP → `protocoloGoverno=null` + aviso; a propriedade é criada de qualquer forma.
 - **Config:** `soa.nasa.power-base-url` e `soa.governo.soap-uri` permitem apontar/simular os serviços.
+
+## 📄 Documentação & 🧪 Testes
+
+- **Documentação completa** (arquitetura, diagrama SOA, explicação REST/SOAP/integração, **evidências e prints** dos testes): **[`docs/DOCUMENTACAO-SOA.pdf`](docs/DOCUMENTACAO-SOA.pdf)**
+- **Coleção Postman** (todos os verbos REST + integração + SOAP, prontos pra rodar): [`docs/postman/2f-agro-soa.postman_collection.json`](docs/postman/2f-agro-soa.postman_collection.json)
+- **Testes SOAP** (instruções + XMLs de requisição): [`docs/soapui/`](docs/soapui/)
+
+> Para chamar o SOAP no Postman: **POST** `http://localhost:8080/ws` com header
+> `Content-Type: text/xml; charset=utf-8` e o envelope no corpo (raw/XML).
 
 ## 📊 Mapa da rubrica (25% cada)
 

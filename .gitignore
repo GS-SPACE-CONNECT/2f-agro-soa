@@ -39,11 +39,9 @@ build/
 ### OS ###
 .DS_Store
 Thumbs.db
+desktop.ini
 
 ### H2 ###
 *.db
 *.trace.db
 *.lock.db
-
-### Artefato gerado (intermediário do PDF) ###
-docs/*.html
