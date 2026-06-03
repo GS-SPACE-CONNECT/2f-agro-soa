@@ -9,12 +9,14 @@ import java.util.Optional;
 /**
  * Repositório Spring Data JPA do {@link CadastroRural} (usado pelo Web Service SOAP).
  *
- * <p>As consultas por CPF e por CAR são derivadas automaticamente do nome do método.</p>
+ * <p>As consultas por CPF e por CAR são derivadas automaticamente do nome do método.
+ * Usamos {@code findFirst...OrderByIdDesc} para retornar sempre o cadastro <b>mais recente</b>,
+ * evitando erro de "resultado não único" caso o mesmo CPF/CAR seja registrado mais de uma vez.</p>
  */
 @Repository
 public interface CadastroRuralRepository extends JpaRepository<CadastroRural, Long> {
 
-    Optional<CadastroRural> findByCpf(String cpf);
+    Optional<CadastroRural> findFirstByCpfOrderByIdDesc(String cpf);
 
-    Optional<CadastroRural> findByCar(String car);
+    Optional<CadastroRural> findFirstByCarOrderByIdDesc(String car);
 }

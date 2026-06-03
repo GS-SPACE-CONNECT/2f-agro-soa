@@ -40,10 +40,10 @@ public class CadastroRuralEndpoint {
     public ConsultarCadastroRuralResponse consultar(@RequestPayload ConsultarCadastroRuralRequest req) {
         Optional<CadastroRural> encontrado = Optional.empty();
         if (req.getCpf() != null && !req.getCpf().isBlank()) {
-            encontrado = repository.findByCpf(req.getCpf().trim());
+            encontrado = repository.findFirstByCpfOrderByIdDesc(req.getCpf().trim());
         }
         if (encontrado.isEmpty() && req.getCar() != null && !req.getCar().isBlank()) {
-            encontrado = repository.findByCar(req.getCar().trim());
+            encontrado = repository.findFirstByCarOrderByIdDesc(req.getCar().trim());
         }
 
         ConsultarCadastroRuralResponse resp = new ConsultarCadastroRuralResponse();
