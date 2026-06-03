@@ -7,11 +7,11 @@
 
 | Nome | RM |
 |---|---|
-| _(preencher)_ | _(preencher)_ |
-| _(preencher)_ | _(preencher)_ |
-| _(preencher)_ | _(preencher)_ |
-
-> GitHub dos responsáveis: @brnleao · @DevRuanVieira · apoio @jota0802
+| Lucca Borges | 554608 |
+| Ruan Melo | 557599 |
+| Rodrigo Jimenez | 558148 |
+| João Victor Franco | 556790 |
+| Bruno Leão | 555563 |
 
 ---
 
@@ -38,7 +38,22 @@ Uma solução de **serviços distribuídos** em **Java + Spring Boot** que:
 
 ---
 
-## 2. Diagrama de Arquitetura SOA
+## 2. Arquitetura da solução
+
+A solução adota uma **arquitetura em camadas orientada a serviços**. Na borda, dois serviços
+expõem o sistema: uma **API REST** (Spring MVC) que atende clientes modernos em JSON e um
+**Web Service SOAP** (Spring-WS, *contract-first*) que simula o sistema legado do governo e
+publica seu **WSDL**. Ambos compartilham a mesma camada de **domínio** e de **persistência**
+(Spring Data JPA + H2), o que garante reúso e evita duplicação de regras.
+
+Uma camada de **serviço** concentra as regras de negócio e a **orquestração da integração**,
+que combina os dois serviços internos (REST ↔ SOAP) com um **serviço externo de dados
+espaciais** (NASA POWER). O acoplamento é mantido baixo por **interfaces** (ex.:
+`ServicoClimatico`) e por **DTOs**, que isolam o contrato público do modelo interno —
+permitindo, por exemplo, trocar a fonte climática (NASA → CPTEC) sem impacto no restante do
+sistema.
+
+### 2.1 Diagrama de Arquitetura SOA
 
 ```
    📱 App 2F-AGRO                 🏛️ Governo legado            🛰️ Dado espacial
@@ -57,6 +72,17 @@ Uma solução de **serviços distribuídos** em **Java + Spring Boot** que:
 
 **Camadas (pacote `br.com.fiap.agro.soa`):** `rest` (controllers) · `soap` (endpoint + cliente)
 · `service` (regras + integração) · `repository` (JPA) · `domain` (POO) · `dto`.
+
+### 2.2 Princípios SOA aplicados
+
+| Princípio | Como é atendido na solução |
+|---|---|
+| **Baixo acoplamento** | Interfaces (`ServicoClimatico`) e DTOs isolam contrato de implementação |
+| **Reutilização de serviços** | Domínio e repositórios JPA reaproveitados por REST e SOAP |
+| **Interoperabilidade** | REST/JSON ↔ SOAP/XML + consumo de API externa (NASA POWER) |
+| **Contratos de serviço** | XSD/WSDL no SOAP e contrato REST documentado (endpoints/DTOs) |
+| **Integração entre sistemas** | Orquestrador que combina REST, SOAP e serviço externo |
+| **Separação de responsabilidades** | Camadas `rest`/`soap`/`service`/`repository`/`domain`/`dto` |
 
 ---
 
@@ -179,14 +205,63 @@ POST /api/integracao/propriedades
 
 ## 7. Evidências de funcionamento
 
-Os request/response reais (REST JSON + SOAP XML + integração + fallback) estão em
-[`docs/evidencias/EVIDENCIAS.md`](evidencias/EVIDENCIAS.md), incluindo:
-- CRUD REST: 200 / 201 / 204 / 400 (validação campo-a-campo) / 404;
-- SOAP: registrar (protocolo) e consultar (encontrado / não encontrado);
-- Integração: enriquecimento com clima real da NASA e **fallback resiliente** com serviços fora do ar.
+Request/response **reais** capturados com a aplicação rodando (`mvn spring-boot:run`).
+Coleções de teste no repositório: [Postman](postman/2f-agro-soa.postman_collection.json) e
+[SoapUI](soapui/README.md).
 
-Coleções de teste: [Postman](postman/2f-agro-soa.postman_collection.json) e
-[SoapUI](soapui/README.md). _(Inserir os prints das execuções nesta seção do PDF.)_
+### 7.1 REST — criação (201) e remoção (204)
+`POST /api/propriedades` → **201** retorna o objeto com `id`; `DELETE /api/propriedades/{id}`
+→ **204** sem corpo; `GET /api/propriedades` → **200** com a lista.
+
+### 7.2 REST — validação (400) com detalhamento campo a campo
+```json
+{ "status": 400, "erro": "Bad Request",
+  "mensagem": "Falha de validação nos campos enviados",
+  "caminho": "/api/propriedades",
+  "campos": { "latitude": "latitude deve ser <= 90", "uf": "uf deve ter exatamente 2 letras",
+              "produtor": "produtor é obrigatório", "areaHa": "areaHa deve ser positiva" } }
+```
+
+### 7.3 REST — não encontrado (404)
+```json
+{ "status": 404, "erro": "Not Found",
+  "mensagem": "Propriedade não encontrada: id=999", "caminho": "/api/propriedades/999" }
+```
+
+### 7.4 SOAP — registrar e consultar
+`registrarCadastroRural` → resposta com protocolo:
+```xml
+<ns2:registrarCadastroRuralResponse xmlns:ns2="http://fiap.com.br/agro/soa/cadastro-rural">
+  <ns2:protocolo>CAR-1</ns2:protocolo>
+  <ns2:situacao>REGISTRADO</ns2:situacao>
+  <ns2:mensagem>Cadastro rural registrado com sucesso para Joao Silva</ns2:mensagem>
+</ns2:registrarCadastroRuralResponse>
+```
+`consultarCadastroRural` (encontrado) → `<encontrado>true</encontrado>` + bloco `<cadastro>`;
+(não encontrado) → `<encontrado>false</encontrado>`.
+
+### 7.5 Integração — enriquecimento com clima real da NASA POWER
+`GET /api/integracao/propriedades/1/clima` (Ribeirão Preto/SP):
+```json
+{ "climaDisponivel": true,
+  "clima": { "temperaturaMediaC": 23.45, "precipitacaoMm": 3.48, "umidadeRelativa": 68.97, "fonte": "NASA POWER" },
+  "alerta": null }
+```
+Ponto seco (Atacama) dispara alerta polimórfico:
+`"alerta": "ALERTA DE SECA (MEDIO): 30 dias sem chuva registrados. Avalie irrigação."`
+
+### 7.6 Integração — fallback resiliente (serviços externos fora do ar)
+O fluxo **não quebra**: a propriedade é criada e as falhas viram avisos.
+```json
+{ "propriedade": { "id": 5, "produtor": "Teste Resiliencia" },
+  "protocoloGoverno": null, "climaDisponivel": false, "clima": null,
+  "avisos": [ "Registro no governo (SOAP) indisponível: Connection refused",
+              "Dado climático indisponível (NASA POWER): ..." ] }
+```
+
+### 7.7 Prints dos testes
+> 🖼️ _Inserir aqui os prints das execuções (Postman e SoapUI). Sugestão de telas:
+> POST 201, validação 400, 404, registrar/consultar SOAP, enriquecimento NASA e fallback._
 
 ---
 
@@ -201,7 +276,20 @@ Coleções de teste: [Postman](postman/2f-agro-soa.postman_collection.json) e
 
 ---
 
-## 9. Conclusão
+## 9. ODS relacionados
+
+A solução se relaciona aos Objetivos de Desenvolvimento Sustentável:
+
+- **ODS 1 – Fome Zero e Agricultura Sustentável:** monitoramento agrícola com dados de satélite
+  apoia a produção de alimentos e o manejo sustentável da propriedade rural.
+- **ODS 5 – Ação Contra a Mudança Global do Clima:** uso de dados climáticos (NASA POWER) e
+  geração de alertas de seca/geada ajudam na adaptação e prevenção de perdas no campo.
+- **ODS 3 – Indústria, Inovação e Infraestrutura:** integração de sistemas distribuídos
+  (REST + SOAP + dados espaciais) como infraestrutura tecnológica inovadora.
+
+---
+
+## 10. Conclusão
 
 O projeto demonstra, de ponta a ponta, os princípios de **SOA**: serviços com contratos bem
 definidos (REST e WSDL/SOAP), **interoperabilidade** entre um cliente moderno e um sistema
