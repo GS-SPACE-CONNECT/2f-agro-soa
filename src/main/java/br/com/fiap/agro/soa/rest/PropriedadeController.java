@@ -3,6 +3,8 @@ package br.com.fiap.agro.soa.rest;
 import br.com.fiap.agro.soa.dto.PropriedadeRequest;
 import br.com.fiap.agro.soa.dto.PropriedadeResponse;
 import br.com.fiap.agro.soa.service.PropriedadeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import java.util.List;
  * 204 (remoção ok), 404 (não encontrado) e 400 (validação) — estes dois últimos via
  * {@link GlobalExceptionHandler}.</p>
  */
+@Tag(name = "Propriedades", description = "CRUD de propriedades rurais (API REST)")
 @RestController
 @RequestMapping("/api/propriedades")
 public class PropriedadeController {
@@ -38,18 +41,21 @@ public class PropriedadeController {
     }
 
     /** GET /api/propriedades — lista todas. */
+    @Operation(summary = "Lista todas as propriedades")
     @GetMapping
     public List<PropriedadeResponse> listar() {
         return service.listar();
     }
 
     /** GET /api/propriedades/{id} — busca por id (404 se não existir). */
+    @Operation(summary = "Busca uma propriedade por id")
     @GetMapping("/{id}")
     public PropriedadeResponse buscar(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
 
     /** POST /api/propriedades — cria (201 Created + Location). */
+    @Operation(summary = "Cria uma nova propriedade")
     @PostMapping
     public ResponseEntity<PropriedadeResponse> criar(@Valid @RequestBody PropriedadeRequest req) {
         PropriedadeResponse criada = service.criar(req);
@@ -61,6 +67,7 @@ public class PropriedadeController {
     }
 
     /** PUT /api/propriedades/{id} — atualiza (200 ok, 404 se não existir). */
+    @Operation(summary = "Atualiza uma propriedade existente")
     @PutMapping("/{id}")
     public PropriedadeResponse atualizar(@PathVariable Long id,
                                          @Valid @RequestBody PropriedadeRequest req) {
@@ -68,6 +75,7 @@ public class PropriedadeController {
     }
 
     /** DELETE /api/propriedades/{id} — remove (204 No Content, 404 se não existir). */
+    @Operation(summary = "Remove uma propriedade")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void remover(@PathVariable Long id) {

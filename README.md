@@ -77,6 +77,7 @@ mvn spring-boot:run
 # REST            → http://localhost:8080/api/propriedades
 # SOAP WSDL       → http://localhost:8080/ws/cadastro-rural.wsdl
 # H2 console      → http://localhost:8080/h2-console
+# Swagger UI      → http://localhost:8080/swagger-ui.html
 ```
 
 ### 🗄️ Banco H2 (console)
@@ -126,6 +127,7 @@ POST /api/integracao/propriedades
 - **Documentação completa** (arquitetura, diagrama SOA, explicação REST/SOAP/integração, **evidências e prints** dos testes): **[`docs/DOCUMENTACAO-SOA.pdf`](docs/DOCUMENTACAO-SOA.pdf)**
 - **Coleção Postman** (todos os verbos REST + integração + SOAP, prontos pra rodar): [`docs/postman/2f-agro-soa.postman_collection.json`](docs/postman/2f-agro-soa.postman_collection.json)
 - **Testes SOAP** (instruções + XMLs de requisição): [`docs/soapui/`](docs/soapui/)
+- **Swagger UI** (documentação interativa da API REST): `http://localhost:8080/swagger-ui.html` (contrato em `/v3/api-docs`)
 
 > Para chamar o SOAP no Postman: **POST** `http://localhost:8080/ws` com header
 > `Content-Type: text/xml; charset=utf-8` e o envelope no corpo (raw/XML).
@@ -141,7 +143,7 @@ POST /api/integracao/propriedades
 
 ## ✨ Diferenciais (bônus)
 
-Swagger/OpenAPI · Docker Compose · Testes JUnit · Mensageria (RabbitMQ) · Deploy nuvem
+✅ **Swagger/OpenAPI** (implementado) · Docker Compose · Testes JUnit · Mensageria (RabbitMQ) · Deploy nuvem
 
 ## 👥 Owners
 
